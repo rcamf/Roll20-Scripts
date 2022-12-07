@@ -35,7 +35,7 @@ async function saveStateToHandout () {
             const prevResults = JSON.parse(notes)
             const newResults = prevResults.concat(state.rolls)
             if (DEBUG) {
-                log("SaveStateToHandout: Saving new results to existing handout.\n\tNew Results: " + newResults)
+                log("SaveStateToHandout: Saving new results to existing handout.\nResults: " + newResults)
             }
             log(newResults)
             saveHandout[0].set({
@@ -48,7 +48,7 @@ async function saveStateToHandout () {
             inplayerjournals: "all"
         })
         if (DEBUG) {
-            log("SaveStateToHandout: Saving rolls to new handout.\n\tRolls: " + state.rolls)
+            log("SaveStateToHandout: Saving rolls to new handout.\nRolls: " + state.rolls)
         }
         createdHandout.set({
             notes: JSON.stringify(state.rolls)
@@ -62,7 +62,8 @@ on("ready", () => {
 	    rolls: []
 	}
 	if (DEBUG) {
-	    log("Ready: " + state)
+	    log("Ready: ")
+	    log(state)
 	}
 	setInterval(() => {
 	    saveStateToHandout()
@@ -71,7 +72,8 @@ on("ready", () => {
 
 on("chat:message", (msg) => {
     if (DEBUG) {
-        log("OnChatMessage: " + msg)
+        log("OnChatMessage: ")
+        log(msg)
     }
 	if (msg.type.endsWith("rollresult")) {
 		const roll = JSON.parse(msg.content)
@@ -82,18 +84,20 @@ on("chat:message", (msg) => {
 		    roll
 		}
 		if (DEBUG) {
-            log("OnChatMessage: Saving roll result to state." + rollEntry)
+            log("OnChatMessage: Saving roll result to state.")
+            log(rollEntry)
         }
 		state.rolls.push(rollEntry)
 	} else if (msg.type === "api") {
 	    if (DEBUG) {
-            log("OnChatMessage: Got api message. " + msg.content)
+            log("OnChatMessage: Got api message.")
+            log(msg.content)
         }
 		if (msg.content.startsWith(SCRIPT_NAME)) {
 		    const command = msg.content.slice(SCRIPT_NAME.length)
 		    if (command === "saveToHandout") {
 		        if (DEBUG) {
-                    log("OnChatMessage: User decided save to handout. " + command)
+                    log("OnChatMessage: User decided save to handout. Command: " + command)
                 }
 		        saveStateToHandout()
 		    }
