@@ -1,7 +1,7 @@
 const SCRIPT_NAME = "!trackRollResults "
 const SAVING_INTERVAL_MS = 600000
 const RESULT_HANDOUT_NAME = "Roll Result Tracker"
-const DEBUG = false
+const DEBUG = true
 
 let getHandoutNotes = (handout) => {
     return new Promise((resolve, reject) => { // Wrapped getting notes in promise because of infinite call stack error
@@ -35,9 +35,9 @@ async function saveStateToHandout () {
             const prevResults = JSON.parse(notes)
             const newResults = prevResults.concat(state.rolls)
             if (DEBUG) {
-                log("SaveStateToHandout: Saving new results to existing handout.\nResults: " + newResults)
+                log("SaveStateToHandout: Saving new results to existing handout.\nResults: ")
+                log(newResults)
             }
-            log(newResults)
             saveHandout[0].set({
                 notes: JSON.stringify(newResults)
             })
@@ -81,6 +81,7 @@ on("chat:message", (msg) => {
 		    player_name: msg.who,
 		    player_id: msg.playerid,
 		    timestamp: Date.now(),
+		    type: "rollResult",
 		    roll
 		}
 		if (DEBUG) {
@@ -102,5 +103,27 @@ on("chat:message", (msg) => {
 		        saveStateToHandout()
 		    }
 		}
+	} else {
+	    if (DEBUG) {
+            log("OnChatMessage: Got other message.")
+            log(msg.content)
+        }
+        if (msg.inlinerolls != undefined) {
+            log(msg.inlinerolls)
+            msg.inlinerolls.forEach(inlineRoll => {
+                const rollEntry = {
+                    player_name: msg.who,
+                    player_id: msg.playerid,
+                    timestamp: Date.now(),
+                    type: "inlineRoll",
+                    roll: inlineRoll
+                }
+                if (DEBUG) {
+                    log("OnChatMessage: Saving roll result to state.")
+                    log(rollEntry)
+                }
+        		state.rolls.push(rollEntry)
+            })
+        }
 	}
 })
